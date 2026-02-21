@@ -1,5 +1,7 @@
 package com.ecommerce.auth_service.controller;
 
+import com.ecommerce.auth_service.dto.LoginRequest;
+import com.ecommerce.auth_service.dto.LoginResponse;
 import com.ecommerce.auth_service.dto.RegistrationRequest;
 import com.ecommerce.auth_service.dto.RegistrationResponse;
 import com.ecommerce.auth_service.service.AuthService;
@@ -11,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthService  authService;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -23,5 +25,10 @@ public class AuthController {
     @PostMapping("/register")
     public RegistrationResponse registerUser(@RequestBody RegistrationRequest registrationRequest){
         return authService.registerUser(registrationRequest);
+    }
+
+    @PostMapping("/login")
+    public LoginResponse login(@RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 }
