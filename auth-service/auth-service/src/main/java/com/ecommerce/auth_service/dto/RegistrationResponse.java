@@ -5,10 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.*;
 
-@Getter
-@AllArgsConstructor
-@Builder
-@Data
+
 public class RegistrationResponse {
 
     private Long id;
