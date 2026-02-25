@@ -43,4 +43,12 @@ public class ProductController {
 
         return ResponseEntity.ok("Product deleted successfully");
     }
+
+    @PostMapping("/simulate/{productId}")
+    public String simulateInventory(@PathVariable Long productId) {
+
+        productService.simulateConcurrentInventoryUpdate(productId);
+
+        return "Inventory update simulation started";
+    }
 }

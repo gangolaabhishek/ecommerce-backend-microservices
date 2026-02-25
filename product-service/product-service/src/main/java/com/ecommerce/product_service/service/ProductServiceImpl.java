@@ -8,6 +8,8 @@ import com.ecommerce.product_service.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class ProductServiceImpl implements ProductService{
@@ -82,5 +84,38 @@ public class ProductServiceImpl implements ProductService{
         response.setStock(product.getStock());
 
         return response;
+    }
+
+
+    public void reduceInventory(Long productId, int quantity){
+        Product product = productRepository.findById(productId)
+                .orElseThrow(()->new RuntimeException("Product not found"));
+
+        synchronized (product) {
+
+            if (product.getStock() < quantity) {
+                throw new RuntimeException("Insufficient stock");
+            }
+
+            product.setStock(product.getStock() - quantity);
+
+            productRepository.save(product);
+        }
+    }
+
+    // JUST FOR STIMULATING THAT 3 THREAD REDUCE IT ALL AT ONCE
+    public void simulateConcurrentInventoryUpdate(Long productId) {
+
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        Runnable task1 = () -> reduceInventory(productId, 2);
+        Runnable task2 = () -> reduceInventory(productId, 3);
+        Runnable task3 = () -> reduceInventory(productId, 1);
+
+        executor.submit(task1);
+        executor.submit(task2);
+        executor.submit(task3);
+
+        executor.shutdown();
     }
 }
