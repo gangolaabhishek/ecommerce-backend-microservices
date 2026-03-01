@@ -87,6 +87,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
 
+    //multithreading example
     public void reduceInventory(Long productId, int quantity){
         Product product = productRepository.findById(productId)
                 .orElseThrow(()->new RuntimeException("Product not found"));
