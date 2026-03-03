@@ -2,10 +2,12 @@ package com.ecommerce.cart_service.service;
 
 import com.ecommerce.cart_service.dto.CartRequestDTO;
 import com.ecommerce.cart_service.dto.CartResponseDTO;
+import com.ecommerce.cart_service.dto.ProductResponseDTO;
 import com.ecommerce.cart_service.entity.Cart;
 import com.ecommerce.cart_service.exception.ResourceNotFoundException;
 import com.ecommerce.cart_service.repository.CartRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,12 +20,33 @@ public class CartServiceImpl implements CartService{
 
     private final CartRepository cartRepository;
 
-    public CartServiceImpl(CartRepository cartRepository) {
+    public CartServiceImpl(CartRepository cartRepository, RestTemplate restTemplate) {
         this.cartRepository = cartRepository;
+        this.restTemplate = restTemplate;
     }
+
+    private final RestTemplate restTemplate;
 
     @Override
     public CartResponseDTO addToCart(CartRequestDTO request) {
+
+        // Call Product Service rest template
+        String productServiceUrl =
+                "http://localhost:8082/api/products/" + request.getProductId();
+
+        ProductResponseDTO product =
+                restTemplate.getForObject(productServiceUrl,
+                        ProductResponseDTO.class);
+
+        if (product == null) {
+            throw new RuntimeException("Product not found in Product Service");
+        }
+
+        if (product.getStock() < request.getQuantity()) {
+            throw new RuntimeException("Insufficient stock in Product Service");
+        }
+
+
         synchronized (this) {
 
             Optional<Cart> existingCart =
